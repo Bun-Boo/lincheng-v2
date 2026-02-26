@@ -1,0 +1,176 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.filterSelect {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  font-size: 0.95rem;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.addButton {
+  background: linear-gradient(135deg, var(--danger-color), #ef4444);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.tableContainer {
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th,
+.table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.table th {
+  background: rgba(0, 0, 0, 0.02);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tableRow {
+  transition: background var(--transition-fast);
+}
+
+.tableRow:hover {
+  background: rgba(99, 102, 241, 0.03);
+}
+
+.idCell {
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.dateCell {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.timeCell {
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.amountCell {
+  color: var(--danger-color);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.categoryBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.catTransport {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--info-color);
+}
+
+.catOther {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
+.noteCell {
+  color: var(--text-secondary);
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn {
+  color: var(--info-color);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.editBtn:hover {
+  background: var(--info-color);
+  color: white;
+}
+
+.deleteBtn {
+  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.1);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.deleteBtn:hover {
+  background: var(--danger-color);
+  color: white;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px !important;
+  color: var(--text-secondary);
+  font-style: italic;
+}

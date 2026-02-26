@@ -1,0 +1,156 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.totalDebtSum {
+  color: var(--danger-color);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.searchBox {
+  position: relative;
+  width: 300px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 16px 10px 36px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  font-size: 0.95rem;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.tableContainer {
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th,
+.table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table th {
+  background: rgba(0, 0, 0, 0.02);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tableRow {
+  transition: background var(--transition-fast);
+}
+
+.tableRow:hover {
+  background: rgba(99, 102, 241, 0.03);
+}
+
+.emphasizeId {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 1.05rem;
+  background: rgba(0,0,0,0.03);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+
+.emphasizeName {
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 1.05rem;
+}
+
+.addressCell {
+  color: var(--text-secondary);
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orderCountCell {
+  font-weight: 600;
+  text-align: center;
+}
+
+.debtActive {
+  color: var(--danger-color);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.debtZero {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.viewDetailBtn {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.viewDetailBtn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px !important;
+  color: var(--text-secondary);
+  font-style: italic;
+}
