@@ -66,6 +66,8 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .table {
