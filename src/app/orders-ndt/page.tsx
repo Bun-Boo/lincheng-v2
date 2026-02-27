@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import styles from './OrdersNDT.module.css';
 import formStyles from '../form.module.css';
 import { useStore, Order, OrderStatus } from '@/store/useStore';
+import CustomSelect from '@/components/CustomSelect/CustomSelect';
 
 export default function OrdersNDT() {
     const { orders, clients, addOrder, updateOrder } = useStore();
@@ -30,7 +31,7 @@ export default function OrdersNDT() {
         if (!clientId) return alert('Vui lòng chọn khách hàng');
 
         const newOrder: Order = {
-            id: `NDT${Date.now().toString().slice(-4)}`,
+            id: `NDT${Date.now().toString().slice(-4)} `,
             clientId,
             itemName,
             image,
@@ -67,7 +68,7 @@ export default function OrdersNDT() {
                     <button className={styles.addButton} onClick={() => setIsCreating(true)}>+ Tạo Đơn Mới</button>
                 </div>
 
-                <div className={styles.tableContainer}>
+                <div className={`${styles.tableContainer} table - responsive`}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -122,16 +123,17 @@ export default function OrdersNDT() {
                                                 className={styles.inlineInput}
                                             />
                                         </td>
-                                        <td>
-                                            <select
+                                        <td onClick={(e) => e.stopPropagation()}>
+                                            <CustomSelect
                                                 value={order.status}
-                                                onChange={(e) => updateOrder(order.id, { status: e.target.value as OrderStatus })}
-                                                className={`${styles.statusSelect} ${order.status === 'Chờ' ? styles.statusWait : order.status === 'Đã đặt' ? styles.statusOrdered : styles.statusReceived}`}
-                                            >
-                                                <option value="Chờ">Chờ</option>
-                                                <option value="Đã đặt">Đã đặt</option>
-                                                <option value="Nhận hàng">Nhận hàng</option>
-                                            </select>
+                                                onChange={(newStatus) => updateOrder(order.id, { status: newStatus as OrderStatus })}
+                                                className={`${styles.statusSelect} ${styles[order.status === 'Chờ' ? 'statusWait' : order.status === 'Đã đặt' ? 'statusOrdered' : 'statusReceived']} `}
+                                                options={[
+                                                    { value: "Chờ", label: "Chờ", className: styles.statusWait },
+                                                    { value: "Đã đặt", label: "Đã đặt", className: styles.statusOrdered },
+                                                    { value: "Nhận hàng", label: "Nhận hàng", className: styles.statusReceived },
+                                                ]}
+                                            />
                                         </td>
                                     </tr>
                                 );
@@ -194,17 +196,19 @@ export default function OrdersNDT() {
                             <form onSubmit={handleCreate}>
                                 <div className={formStyles.formGroup}>
                                     <label>Khách Hàng</label>
-                                    <select
+                                    <CustomSelect
                                         className={formStyles.formInput}
                                         value={clientId}
-                                        onChange={e => setClientId(e.target.value)}
-                                        required
-                                    >
-                                        <option value="">-- Chọn Khách Hàng --</option>
-                                        {clients.map(c => (
-                                            <option key={c.id} value={c.id}>{c.name} - {c.phone}</option>
-                                        ))}
-                                    </select>
+                                        onChange={val => setClientId(val)}
+                                        placeholder="-- Chọn Khách Hàng --"
+                                        options={[
+                                            { value: "", label: "-- Chọn Khách Hàng --" },
+                                            ...clients.map(c => ({
+                                                value: c.id,
+                                                label: `${c.name} - ${c.phone}`
+                                            }))
+                                        ]}
+                                    />
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '16px' }}>

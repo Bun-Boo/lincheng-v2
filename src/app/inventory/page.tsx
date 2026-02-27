@@ -39,10 +39,11 @@ export default function Inventory() {
             updateInventory(editingItem.id, formData);
             setEditingItem(null);
         } else {
-            if (inventory.some(i => i.id === formData.id)) return alert('Mã hàng hoá đã tồn tại!');
-            if (!formData.id) formData.id = `HH${Date.now().toString().slice(-4)}`;
+            const finalId = formData.id || `HH${Date.now().toString().slice(-4)}`;
+            if (inventory.some(i => i.id === finalId)) return alert('Mã hàng hoá đã tồn tại!');
             addInventory({
                 ...formData,
+                id: finalId,
                 importedAt: new Date().toISOString()
             });
             setIsCreating(false);
@@ -76,7 +77,7 @@ export default function Inventory() {
                     </div>
                 </div>
 
-                <div className={styles.tableContainer}>
+                <div className={`${styles.tableContainer} table-responsive`}>
                     <table className={styles.table}>
                         <thead>
                             <tr>

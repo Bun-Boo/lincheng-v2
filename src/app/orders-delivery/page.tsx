@@ -4,6 +4,7 @@ import { useState } from 'react';
 import styles from './OrdersDelivery.module.css';
 import formStyles from '../form.module.css';
 import { useStore, Delivery, DeliveryStatus } from '@/store/useStore';
+import CustomSelect from '@/components/CustomSelect/CustomSelect';
 
 export default function OrdersDelivery() {
     const { deliveries, orders, clients, addDelivery, updateDelivery } = useStore();
@@ -88,7 +89,7 @@ export default function OrdersDelivery() {
                     </div>
                 </div>
 
-                <div className={styles.tableContainer}>
+                <div className={`${styles.tableContainer} table-responsive`}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -116,19 +117,17 @@ export default function OrdersDelivery() {
                                         <td className={cod > 0 ? styles.codActive : styles.codZero}>
                                             {cod.toLocaleString()}đ
                                         </td>
-                                        <td>
-                                            <select
+                                        <td onClick={e => e.stopPropagation()}>
+                                            <CustomSelect
                                                 value={delivery.status}
-                                                onChange={(e) => {
-                                                    const newStatus = e.target.value as DeliveryStatus;
-                                                    updateDelivery(delivery.id, { status: newStatus });
-                                                }}
+                                                onChange={(newStatus) => updateDelivery(delivery.id, { status: newStatus as DeliveryStatus })}
                                                 className={`${styles.statusSelect} ${styles[delivery.status === 'Đang giao' ? 'statusDelivering' : delivery.status === 'Giao thành công' ? 'statusSuccess' : 'statusFailed']}`}
-                                            >
-                                                <option value="Đang giao">Đang giao</option>
-                                                <option value="Giao thành công">Giao thành công</option>
-                                                <option value="Giao thất bại">Giao thất bại</option>
-                                            </select>
+                                                options={[
+                                                    { value: "Đang giao", label: "Đang giao", className: styles.statusDelivering },
+                                                    { value: "Giao thành công", label: "Giao thành công", className: styles.statusSuccess },
+                                                    { value: "Giao thất bại", label: "Giao thất bại", className: styles.statusFailed },
+                                                ]}
+                                            />
                                         </td>
                                     </tr>
                                 );
@@ -171,22 +170,22 @@ export default function OrdersDelivery() {
 
                                 <div className={formStyles.formGroup}>
                                     <label>Liên kết Đơn NĐT</label>
-                                    <select
+                                    <CustomSelect
                                         className={formStyles.formInput}
                                         value={orderNdtId}
-                                        onChange={e => setOrderNdtId(e.target.value)}
-                                        required
-                                    >
-                                        <option value="">-- Chọn đơn Mua Hộ --</option>
-                                        {availableOrders.map(o => {
-                                            const c = getClientInfo(o.clientId);
-                                            return (
-                                                <option key={o.id} value={o.id}>
-                                                    {o.id} - {c?.name} - {o.itemName}
-                                                </option>
-                                            );
-                                        })}
-                                    </select>
+                                        onChange={val => setOrderNdtId(val)}
+                                        placeholder="-- Chọn đơn Mua Hộ --"
+                                        options={[
+                                            { value: "", label: "-- Chọn đơn Mua Hộ --", className: "hidden" },
+                                            ...availableOrders.map(o => {
+                                                const c = getClientInfo(o.clientId);
+                                                return {
+                                                    value: o.id,
+                                                    label: `${o.id} - ${c?.name} - ${o.itemName}`
+                                                };
+                                            })
+                                        ]}
+                                    />
                                     {availableOrders.length === 0 && (
                                         <p style={{ color: 'var(--danger-color)', fontSize: '0.8rem', marginTop: '4px' }}>
                                             Tất cả đơn NĐT hiện tại đã có mã MVĐ hoặc chưa có đơn NĐT nào.

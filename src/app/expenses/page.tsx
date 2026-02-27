@@ -4,6 +4,7 @@ import { useState } from 'react';
 import styles from './Expenses.module.css';
 import formStyles from '../form.module.css';
 import { useStore, Expense, ExpenseCategory } from '@/store/useStore';
+import CustomSelect from '@/components/CustomSelect/CustomSelect';
 
 export default function Expenses() {
     const { expenses, addExpense, updateExpense, deleteExpense } = useStore();
@@ -64,20 +65,21 @@ export default function Expenses() {
                     <h1 className="page-title">Quản lý Chi Phí</h1>
 
                     <div className={styles.actions}>
-                        <select
-                            className={styles.filterSelect}
+                        <CustomSelect
                             value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value as any)}
-                        >
-                            <option value="All">Tất cả chi phí</option>
-                            <option value="Vận chuyển">Vận chuyển</option>
-                            <option value="Khác">Khác</option>
-                        </select>
+                            onChange={(val) => setCategoryFilter(val as ExpenseCategory | 'All')}
+                            className={styles.filterSelect}
+                            options={[
+                                { value: "All", label: "Tất cả chi phí" },
+                                { value: "Vận chuyển", label: "Vận chuyển" },
+                                { value: "Khác", label: "Khác" }
+                            ]}
+                        />
                         <button className={styles.addButton} onClick={openCreate}>+ Thêm Chi Phí</button>
                     </div>
                 </div>
 
-                <div className={styles.tableContainer}>
+                <div className={`${styles.tableContainer} table-responsive`}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -143,15 +145,15 @@ export default function Expenses() {
                                     </div>
                                     <div className={formStyles.formGroup}>
                                         <label>Loại Chi Phí</label>
-                                        <select
+                                        <CustomSelect
                                             className={formStyles.formInput}
                                             value={formData.category}
-                                            onChange={e => setFormData({ ...formData, category: e.target.value as ExpenseCategory })}
-                                            required
-                                        >
-                                            <option value="Vận chuyển">Vận chuyển</option>
-                                            <option value="Khác">Khác</option>
-                                        </select>
+                                            onChange={val => setFormData({ ...formData, category: val as ExpenseCategory })}
+                                            options={[
+                                                { value: "Vận chuyển", label: "Vận chuyển" },
+                                                { value: "Khác", label: "Khác" }
+                                            ]}
+                                        />
                                     </div>
                                 </div>
 

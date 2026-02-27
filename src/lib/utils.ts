@@ -1,4 +1,4 @@
-import { Order, Delivery, useStore } from '@/store/useStore';
+import { useStore } from '@/store/useStore';
 
 export function calculateClientDebt(clientId: string): number {
   const { orders, deliveries } = useStore.getState();

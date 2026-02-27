@@ -17,7 +17,7 @@ export default function RootLayout({
       <body>
         <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
           <Sidebar />
-          <main style={{ flex: 1, marginLeft: '280px', padding: '0', background: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <main className="main-layout">
             {children}
           </main>
         </div>

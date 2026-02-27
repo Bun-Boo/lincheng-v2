@@ -87,7 +87,7 @@ export default function Debts() {
                     </div>
                 </div>
 
-                <div className={styles.tableContainer}>
+                <div className={`${styles.tableContainer} table-responsive`}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
