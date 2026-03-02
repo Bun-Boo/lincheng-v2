@@ -10,6 +10,7 @@ export default function OrdersDelivery() {
     const { deliveries, orders, clients, addDelivery, updateDelivery } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
     // Form State
     const [deliveryId, setDeliveryId] = useState('');
@@ -109,7 +110,14 @@ export default function OrdersDelivery() {
                                 return (
                                     <tr key={delivery.id} className={styles.tableRow}>
                                         <td className={styles.emphasizeId}>{delivery.id}</td>
-                                        <td className={styles.emphasizeName}>{delivery.buyerName}</td>
+                                        <td
+                                            className={styles.emphasizeName}
+                                            onClick={() => {
+                                                const order = getOrderInfo(delivery.orderNdtId);
+                                                if (order?.clientId) setSelectedClientId(order.clientId);
+                                            }}
+                                            style={getOrderInfo(delivery.orderNdtId)?.clientId ? { cursor: 'pointer', textDecoration: 'underline' } : {}}
+                                        >{delivery.buyerName}</td>
                                         <td>{delivery.phone}</td>
                                         <td>{delivery.itemName}</td>
                                         <td>{delivery.quantity}</td>
@@ -144,6 +152,51 @@ export default function OrdersDelivery() {
                     </table>
                 </div>
             </div>
+
+            {/* Info Modal */}
+            {
+                selectedClientId && (
+                    <div className="modal-overlay" onClick={() => setSelectedClientId(null)}>
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="modal-header">
+                                <h2>Chi tiết khách hàng</h2>
+                                <button className="modal-close-btn" onClick={() => setSelectedClientId(null)}>×</button>
+                            </div>
+                            <div className="modal-body">
+                                {(() => {
+                                    const client = getClientInfo(selectedClientId);
+                                    return (
+                                        <>
+                                            <div className={styles.infoGroup}>
+                                                <label>Tên người mua:</label>
+                                                <p>{client?.name}</p>
+                                            </div>
+                                            <div className={styles.infoGroup}>
+                                                <label>Số điện thoại:</label>
+                                                <p>{client?.phone}</p>
+                                            </div>
+                                            <div className={styles.infoGroup}>
+                                                <label>Địa chỉ:</label>
+                                                <p>{client?.address}</p>
+                                            </div>
+                                            <div className={styles.infoGroup}>
+                                                <label>Công nợ hiện tại:</label>
+                                                <p className={styles.profitNeg} style={{ fontWeight: 'bold' }}>
+                                                    {(() => {
+                                                        const clientOrders = orders.filter(o => o.clientId === client?.id);
+                                                        const totalDebt = clientOrders.reduce((sum, o) => sum + (o.price * o.quantity) - o.paid, 0);
+                                                        return totalDebt > 0 ? totalDebt.toLocaleString() + 'đ' : '0đ';
+                                                    })()}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )
+                                })()}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
             {/* Create Delivery Modal */}
             {isCreating && (

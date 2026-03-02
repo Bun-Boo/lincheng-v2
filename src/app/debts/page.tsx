@@ -10,6 +10,7 @@ export default function Debts() {
     const { clients, orders, addClient } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
     // Form State
     const [name, setName] = useState('');
@@ -105,7 +106,11 @@ export default function Debts() {
                                 return (
                                     <tr key={client.id} className={styles.tableRow}>
                                         <td className={styles.emphasizeId}>{client.id}</td>
-                                        <td className={styles.emphasizeName}>{client.name}</td>
+                                        <td
+                                            className={styles.emphasizeName}
+                                            onClick={() => setSelectedClientId(client.id)}
+                                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                                        >{client.name}</td>
                                         <td>{client.phone}</td>
                                         <td className={styles.addressCell}>{client.address}</td>
                                         <td className={styles.orderCountCell}>{client.totalOrders}</td>
@@ -113,7 +118,7 @@ export default function Debts() {
                                             {client.totalDebt.toLocaleString()}đ
                                         </td>
                                         <td>
-                                            <button className={styles.viewDetailBtn}>Chi tiết</button>
+                                            <button className={styles.viewDetailBtn} onClick={() => setSelectedClientId(client.id)}>Chi tiết</button>
                                         </td>
                                     </tr>
                                 );
@@ -130,6 +135,51 @@ export default function Debts() {
                     </table>
                 </div>
             </div>
+
+            {/* Info Modal */}
+            {
+                selectedClientId && (
+                    <div className="modal-overlay" onClick={() => setSelectedClientId(null)}>
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="modal-header">
+                                <h2>Chi tiết khách hàng</h2>
+                                <button className="modal-close-btn" onClick={() => setSelectedClientId(null)}>×</button>
+                            </div>
+                            <div className="modal-body">
+                                {(() => {
+                                    const client = clients.find(c => c.id === selectedClientId);
+                                    return (
+                                        <>
+                                            <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed var(--border-color)', paddingBottom: '8px' }}>
+                                                <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Tên người mua:</label>
+                                                <p style={{ fontWeight: 500, color: 'var(--text-primary)', textAlign: 'right' }}>{client?.name}</p>
+                                            </div>
+                                            <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed var(--border-color)', paddingBottom: '8px' }}>
+                                                <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Số điện thoại:</label>
+                                                <p style={{ fontWeight: 500, color: 'var(--text-primary)', textAlign: 'right' }}>{client?.phone}</p>
+                                            </div>
+                                            <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed var(--border-color)', paddingBottom: '8px' }}>
+                                                <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Địa chỉ:</label>
+                                                <p style={{ fontWeight: 500, color: 'var(--text-primary)', textAlign: 'right' }}>{client?.address}</p>
+                                            </div>
+                                            <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed var(--border-color)', paddingBottom: '8px' }}>
+                                                <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Công nợ hiện tại:</label>
+                                                <p style={{ fontWeight: 'bold', color: 'var(--danger-color)' }}>
+                                                    {(() => {
+                                                        const clientOrders = orders.filter(o => o.clientId === client?.id);
+                                                        const totalDebt = clientOrders.reduce((sum, o) => sum + (o.price * o.quantity) - o.paid, 0);
+                                                        return totalDebt > 0 ? totalDebt.toLocaleString() + 'đ' : '0đ';
+                                                    })()}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )
+                                })()}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
             {/* Create Client Modal */}
             {isCreating && (
