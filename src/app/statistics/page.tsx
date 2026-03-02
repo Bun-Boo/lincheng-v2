@@ -7,6 +7,8 @@ import { useStore } from '@/store/useStore';
 export default function Statistics() {
     const { orders, expenses, inventory } = useStore();
     const [timeRange, setTimeRange] = useState<'all' | 'today' | 'week' | 'month' | 'year' | 'custom'>('all');
+    const [customStart, setCustomStart] = useState('');
+    const [customEnd, setCustomEnd] = useState('');
 
     // Time Filtering Logic (simplified for MVP)
     const filterByTime = (dateStr: string) => {
@@ -18,11 +20,25 @@ export default function Statistics() {
         if (timeRange === 'today') {
             return itemDate.toDateString() === today.toDateString();
         }
+        if (timeRange === 'week') {
+            const firstDayOfWeek = new Date(today);
+            firstDayOfWeek.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)); // Monday
+            const lastDayOfWeek = new Date(firstDayOfWeek);
+            lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+            return itemDate >= firstDayOfWeek && itemDate <= lastDayOfWeek;
+        }
         if (timeRange === 'month') {
             return itemDate.getMonth() === today.getMonth() && itemDate.getFullYear() === today.getFullYear();
         }
         if (timeRange === 'year') {
             return itemDate.getFullYear() === today.getFullYear();
+        }
+        if (timeRange === 'custom') {
+            if (customStart && customEnd) {
+                const end = new Date(customEnd);
+                end.setHours(23, 59, 59, 999);
+                return itemDate >= new Date(customStart) && itemDate <= end;
+            }
         }
         return true;
     };
@@ -56,13 +72,24 @@ export default function Statistics() {
                     <select
                         className={styles.timeSelect}
                         value={timeRange}
-                        onChange={(e) => setTimeRange(e.target.value as 'all' | 'today' | 'month' | 'year')}
+                        onChange={(e) => setTimeRange(e.target.value as any)}
                     >
                         <option value="all">Tất cả thời gian</option>
                         <option value="today">Hôm nay</option>
+                        <option value="week">Tuần này</option>
                         <option value="month">Tháng này (1-31)</option>
                         <option value="year">Năm nay</option>
+                        <option value="custom">Tùy chọn...</option>
                     </select>
+
+                    {timeRange === 'custom' && (
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <input type="date" className={styles.timeSelect} style={{ width: 'auto' }} value={customStart} onChange={e => setCustomStart(e.target.value)} />
+                            <span>-</span>
+                            <input type="date" className={styles.timeSelect} style={{ width: 'auto' }} value={customEnd} onChange={e => setCustomEnd(e.target.value)} />
+                        </div>
+                    )}
+
                     <button className={styles.exportButton}>📥 Xuất Báo Cáo</button>
                 </div>
             </div>
@@ -112,6 +139,16 @@ export default function Statistics() {
                     <div className={styles.chartHeader}>
                         <h3>Biểu đồ Doanh thu & Chi phí</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Mô phỏng minh hoạ tuần gần nhất</p>
+                        <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '0.85rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'linear-gradient(180deg, var(--primary-color), var(--primary-hover))' }}></span>
+                                <span>Doanh thu</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.8)' }}></span>
+                                <span>Chi phí</span>
+                            </div>
+                        </div>
                     </div>
                     <div className={styles.mockChartArea}>
                         <div className={styles.barsContainer}>
@@ -134,8 +171,14 @@ export default function Statistics() {
                     </div>
                     <div className={styles.topItemsList}>
                         {topItems.map((item, index) => (
-                            <div key={item.id} className={styles.topItem}>
-                                <div className={styles.itemRank}>{index + 1}</div>
+                            <div key={item.id} className={styles.topItem} style={{
+                                background: index === 0 ? 'rgba(245, 158, 11, 0.1)' : index === 1 ? 'rgba(209, 213, 219, 0.1)' : index === 2 ? 'rgba(180, 83, 9, 0.1)' : 'transparent',
+                                border: index === 0 ? '1px solid rgba(245, 158, 11, 0.2)' : '1px solid transparent'
+                            }}>
+                                <div className={styles.itemRank} style={{
+                                    background: index === 0 ? '#f59e0b' : index === 1 ? '#9ca3af' : index === 2 ? '#b45309' : 'var(--border-color)',
+                                    color: index < 3 ? 'white' : 'var(--text-secondary)'
+                                }}>{index + 1}</div>
                                 <div className={styles.itemInfo}>
                                     <h4>{item.name}</h4>
                                     <p>{item.sold} sản phẩm</p>

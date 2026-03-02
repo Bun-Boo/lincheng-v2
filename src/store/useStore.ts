@@ -51,6 +51,7 @@ export interface Expense {
   amount: number;
   category: ExpenseCategory;
   note: string;
+  image?: string;
 }
 
 interface AppState {
@@ -62,9 +63,11 @@ interface AppState {
 
   addClient: (c: Client) => void;
   updateClient: (id: string, c: Partial<Client>) => void;
+  deleteClient: (id: string) => void;
 
   addOrder: (o: Order) => void;
   updateOrder: (id: string, o: Partial<Order>) => void;
+  deleteOrder: (id: string) => void;
 
   addDelivery: (d: Delivery) => void;
   updateDelivery: (id: string, d: Partial<Delivery>) => void;
@@ -150,10 +153,16 @@ export const useStore = create<AppState>()(
       updateClient: (id, c) => set((state) => ({
         clients: state.clients.map(client => client.id === id ? { ...client, ...c } : client)
       })),
+      deleteClient: (id) => set((state) => ({
+        clients: state.clients.filter(client => client.id !== id)
+      })),
 
       addOrder: (o) => set((state) => ({ orders: [o, ...state.orders] })),
       updateOrder: (id, o) => set((state) => ({
         orders: state.orders.map(order => order.id === id ? { ...order, ...o } : order)
+      })),
+      deleteOrder: (id) => set((state) => ({
+        orders: state.orders.filter(order => order.id !== id)
       })),
 
       addDelivery: (d) => set((state) => ({ deliveries: [d, ...state.deliveries] })),

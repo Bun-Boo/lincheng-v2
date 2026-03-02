@@ -7,6 +7,7 @@ import styles from './Sidebar.module.css';
 const navItems = [
     { name: 'Đơn NĐT', path: '/orders-ndt', icon: '📦' },
     { name: 'Giao Hàng', path: '/orders-delivery', icon: '🚚' },
+    { name: 'Khách Hàng', path: '/customers', icon: '👥' },
     { name: 'Công Nợ', path: '/debts', icon: '💰' },
     { name: 'Tồn Kho', path: '/inventory', icon: '🏭' },
     { name: 'Chi Phí', path: '/expenses', icon: '💸' },
