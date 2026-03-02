@@ -5,6 +5,7 @@ import styles from './OrdersDelivery.module.css';
 import formStyles from '../form.module.css';
 import { useStore, Delivery, DeliveryStatus } from '@/store/useStore';
 import CustomSelect from '@/components/CustomSelect/CustomSelect';
+import { calculateClientDebt } from '@/lib/utils';
 
 export default function OrdersDelivery() {
     const { deliveries, orders, clients, addDelivery, updateDelivery } = useStore();
@@ -31,6 +32,7 @@ export default function OrdersDelivery() {
             quantity: order?.quantity || 0,
             price: order?.price || 0,
             paid: order?.paid || 0,
+            orderCreatedAt: order?.createdAt || null,
         };
     });
 
@@ -95,6 +97,7 @@ export default function OrdersDelivery() {
                         <thead>
                             <tr>
                                 <th>MVĐ</th>
+                                <th>Ngày tạo đơn</th>
                                 <th>Người Mua</th>
                                 <th>SĐT</th>
                                 <th>Tên Hàng</th>
@@ -110,6 +113,9 @@ export default function OrdersDelivery() {
                                 return (
                                     <tr key={delivery.id} className={styles.tableRow}>
                                         <td className={styles.emphasizeId}>{delivery.id}</td>
+                                        <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                            {delivery.orderCreatedAt ? new Date(delivery.orderCreatedAt).toLocaleDateString('vi-VN') : '---'}
+                                        </td>
                                         <td
                                             className={styles.emphasizeName}
                                             onClick={() => {
@@ -143,7 +149,7 @@ export default function OrdersDelivery() {
 
                             {filteredDeliveries.length === 0 && (
                                 <tr>
-                                    <td colSpan={8} className={styles.emptyState}>
+                                    <td colSpan={9} className={styles.emptyState}>
                                         Không tìm thấy dữ liệu vận đơn nào.
                                     </td>
                                 </tr>
@@ -183,8 +189,7 @@ export default function OrdersDelivery() {
                                                 <label>Công nợ hiện tại:</label>
                                                 <p className={styles.profitNeg} style={{ fontWeight: 'bold' }}>
                                                     {(() => {
-                                                        const clientOrders = orders.filter(o => o.clientId === client?.id);
-                                                        const totalDebt = clientOrders.reduce((sum, o) => sum + (o.price * o.quantity) - o.paid, 0);
+                                                        const totalDebt = calculateClientDebt(client?.id || '');
                                                         return totalDebt > 0 ? totalDebt.toLocaleString() + 'đ' : '0đ';
                                                     })()}
                                                 </p>

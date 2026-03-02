@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar/Sidebar";
+import StoreProvider from "@/components/StoreProvider/StoreProvider";
 
 export const metadata: Metadata = {
   title: "Lincheng - Mini ERP",
@@ -18,7 +19,9 @@ export default function RootLayout({
         <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
           <Sidebar />
           <main className="main-layout">
-            {children}
+            <StoreProvider>
+              {children}
+            </StoreProvider>
           </main>
         </div>
       </body>

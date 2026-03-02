@@ -18,6 +18,8 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   background: var(--surface-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   font-size: 0.95rem;
   transition: all var(--transition-fast);
   box-shadow: var(--shadow-sm);
@@ -49,6 +51,8 @@
 
 .tableContainer {
   background: var(--surface-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);

@@ -25,6 +25,8 @@
 
 .tableContainer {
   background: var(--surface-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
@@ -84,6 +86,8 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
   background: var(--surface-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.95rem;
@@ -156,6 +160,8 @@
 
 .modal {
   background: var(--surface-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   width: 480px;
   max-width: 90%;

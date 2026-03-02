@@ -4,22 +4,19 @@ import { useState } from 'react';
 import styles from './Customers.module.css';
 import formStyles from '../form.module.css';
 import { useStore, Client } from '@/store/useStore';
+import { calculateClientDebt } from '@/lib/utils';
 
 export default function Customers() {
     const { clients, orders, addClient, updateClient, deleteClient } = useStore();
     const [isCreating, setIsCreating] = useState(false);
     const [editingClient, setEditingClient] = useState<Client | null>(null);
     const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Form State
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
-
-    const calculateDebt = (clientId: string) => {
-        const clientOrders = orders.filter(o => o.clientId === clientId);
-        return clientOrders.reduce((sum, o) => sum + (o.price * o.quantity) - o.paid, 0);
-    };
 
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -80,67 +77,87 @@ export default function Customers() {
             <div className="page-container">
                 <div className={styles.header}>
                     <h1 className="page-title">Thông Tin Khách Hàng</h1>
-                    <button className={styles.addButton} onClick={openCreate}>+ Thêm Khách Hàng</button>
+                    <div className={styles.actions}>
+                        <div className={styles.searchBox}>
+                            <span className={styles.searchIcon}>🔍</span>
+                            <input
+                                type="text"
+                                placeholder="Tìm theo tên, SĐT, mã KH..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                        </div>
+                        <button className={styles.addButton} onClick={openCreate}>+ Thêm Khách Hàng</button>
+                    </div>
                 </div>
 
-                <div className={`${styles.tableContainer} table-responsive`}>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên Khách Hàng</th>
-                                <th>Số Điện Thoại</th>
-                                <th>Địa Chỉ</th>
-                                <th>Công Nợ Hiện Tại</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {clients.map((client) => {
-                                const debt = calculateDebt(client.id);
-                                return (
-                                    <tr key={client.id} className={styles.tableRow}>
-                                        <td>{client.id}</td>
-                                        <td
-                                            className={styles.emphasize}
-                                            onClick={() => setSelectedClientId(client.id)}
-                                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                                        >{client.name}</td>
-                                        <td>{client.phone}</td>
-                                        <td>{client.address}</td>
-                                        <td className={debt > 0 ? styles.profitNeg : ''}>
-                                            {debt > 0 ? debt.toLocaleString() + 'đ' : '0đ'}
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button
-                                                    onClick={() => openEdit(client)}
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
-                                                    title="Sửa"
-                                                >
-                                                    ✏️
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(client.id)}
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: 'var(--danger-color, #ef4444)' }}
-                                                    title="Xóa"
-                                                >
-                                                    🗑️
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {clients.length === 0 && (
+                <div className={styles.tableContainer}>
+                    <div className={styles.tableScrollWrapper}>
+                        <table className={styles.table}>
+                            <thead>
                                 <tr>
-                                    <td colSpan={6} style={{ textAlign: 'center', padding: '24px' }}>Chưa có khách hàng nào</td>
+                                    <th>ID</th>
+                                    <th>Tên Khách Hàng</th>
+                                    <th>Số Điện Thoại</th>
+                                    <th>Địa Chỉ</th>
+                                    <th>Công Nợ Hiện Tại</th>
+                                    <th>Hành động</th>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                            </thead>
+                            <tbody>
+                                {clients
+                                    .filter(c =>
+                                        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                        c.phone.includes(searchTerm) ||
+                                        c.id.toLowerCase().includes(searchTerm.toLowerCase())
+                                    )
+                                    .map((client) => {
+                                        const debt = calculateClientDebt(client.id);
+                                        return (
+                                            <tr key={client.id} className={styles.tableRow}>
+                                                <td>{client.id}</td>
+                                                <td
+                                                    className={styles.emphasize}
+                                                    onClick={() => setSelectedClientId(client.id)}
+                                                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                                                >{client.name}</td>
+                                                <td>{client.phone}</td>
+                                                <td>{client.address}</td>
+                                                <td className={debt > 0 ? styles.profitNeg : ''}>
+                                                    {debt > 0 ? debt.toLocaleString() + 'đ' : '0đ'}
+                                                </td>
+                                                <td>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button
+                                                            onClick={() => openEdit(client)}
+                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                                                            title="Sửa"
+                                                        >
+                                                            ✏️
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(client.id)}
+                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: 'var(--danger-color, #ef4444)' }}
+                                                            title="Xóa"
+                                                        >
+                                                            🗑️
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                {clients.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} style={{ textAlign: 'center', padding: '24px' }}>Chưa có khách hàng nào</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>{/* end tableScrollWrapper */}
+                </div>{/* end tableContainer */}
+            </div>{/* end page-container */}
 
             {/* Info Modal */}
             {
@@ -172,8 +189,7 @@ export default function Customers() {
                                                 <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Công nợ hiện tại:</label>
                                                 <p style={{ fontWeight: 'bold', color: 'var(--danger-color)' }}>
                                                     {(() => {
-                                                        const clientOrders = orders.filter(o => o.clientId === client?.id);
-                                                        const totalDebt = clientOrders.reduce((sum, o) => sum + (o.price * o.quantity) - o.paid, 0);
+                                                        const totalDebt = calculateClientDebt(client?.id || '');
                                                         return totalDebt > 0 ? totalDebt.toLocaleString() + 'đ' : '0đ';
                                                     })()}
                                                 </p>

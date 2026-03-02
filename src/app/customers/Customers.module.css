@@ -7,6 +7,43 @@
   gap: 16px;
 }
 
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.searchInput {
+  padding: 8px 12px 8px 32px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  outline: none;
+  width: 240px;
+  transition: border-color var(--transition-fast);
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color);
+}
+
 .addButton {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   color: white;
@@ -16,6 +53,7 @@
   font-weight: 600;
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .addButton:hover {
@@ -25,11 +63,21 @@
 
 .tableContainer {
   background: var(--surface-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
+  overflow: hidden;
+  max-height: calc(100vh - 220px);
+  display: flex;
+  flex-direction: column;
+}
+
+.tableScrollWrapper {
+  overflow-y: auto;
   overflow-x: auto;
-  overflow-y: visible;
+  flex: 1;
 }
 
 .table {
@@ -40,8 +88,14 @@
 
 .table th,
 .table td {
-  padding: 16px 24px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border-color);
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .table th {
@@ -54,7 +108,7 @@
 }
 
 .tableRow:hover {
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(160, 121, 78, 0.05);
 }
 
 .emphasize {

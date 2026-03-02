@@ -35,13 +35,51 @@
 .optionsDropdown {
     position: absolute;
     min-width: 140px;
+    max-height: 250px;
+    display: flex;
+    flex-direction: column;
     background: var(--surface-color);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
     z-index: 999999;
-    overflow: hidden;
     animation: fadeIn 0.15s ease-out;
+}
+
+.searchContainer {
+    padding: 8px;
+    position: sticky;
+    top: 0;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 10;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.searchInput:focus {
+    border-color: var(--primary-color);
+}
+
+.optionsList {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.noResults {
+    padding: 12px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-style: italic;
 }
 
 .optionItem {

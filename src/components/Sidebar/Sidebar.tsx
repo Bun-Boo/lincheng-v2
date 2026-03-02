@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRef, useState, useEffect } from 'react';
 import styles from './Sidebar.module.css';
 
 const navItems = [
@@ -14,14 +15,59 @@ const navItems = [
     { name: 'Thống Kê', path: '/statistics', icon: '📊' },
 ];
 
+const LOGO_KEY = 'lincheng-logo';
+
 export default function Sidebar() {
     const pathname = usePathname();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [logoSrc, setLogoSrc] = useState<string | null>(null);
+
+    useEffect(() => {
+        const saved = localStorage.getItem(LOGO_KEY);
+        if (saved) setLogoSrc(saved);
+    }, []);
+
+    const handleLogoClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result as string;
+            setLogoSrc(base64);
+            localStorage.setItem(LOGO_KEY, base64);
+        };
+        reader.readAsDataURL(file);
+        // Reset input so same file can be selected again
+        e.target.value = '';
+    };
 
     return (
         <aside className={styles.sidebar}>
             <div className={styles.logoContainer}>
-                <div className={styles.logoIcon}>L</div>
+                <div
+                    className={styles.logoImageWrapper}
+                    onClick={handleLogoClick}
+                    title="Nhấn để đổi logo"
+                >
+                    {logoSrc ? (
+                        <img src={logoSrc} alt="Logo" className={styles.logoImage} />
+                    ) : (
+                        <div className={styles.logoIcon}>L</div>
+                    )}
+                    <div className={styles.logoOverlay}>📷</div>
+                </div>
                 <h1 className={styles.logoText}>Lincheng</h1>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                />
             </div>
 
             <nav className={styles.nav}>

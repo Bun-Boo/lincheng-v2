@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs, initializeFirestore } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export type OrderStatus = 'Chờ' | 'Đã đặt' | 'Nhận hàng';
 export type DeliveryStatus = 'Đang giao' | 'Giao thành công' | 'Giao thất bại';
@@ -60,6 +62,7 @@ interface AppState {
   deliveries: Delivery[];
   inventory: InventoryItem[];
   expenses: Expense[];
+  isSynced: boolean;
 
   addClient: (c: Client) => void;
   updateClient: (id: string, c: Partial<Client>) => void;
@@ -79,9 +82,12 @@ interface AppState {
   addExpense: (e: Expense) => void;
   updateExpense: (id: string, e: Partial<Expense>) => void;
   deleteExpense: (id: string) => void;
+
+  syncFirestore: () => () => void; // Returns an unsubscribe function
+  seedMockData: () => Promise<void>; // Feature to initialize the database with some mock data
 }
 
-// Initial Mock Data
+// Initial Mock Data (used only for seeding)
 const initialClients: Client[] = [
   { id: 'KH001', name: 'Nguyễn Văn A', phone: '0901234567', address: 'Hà Nội' },
   { id: 'KH002', name: 'Trần Thị B', phone: '0987654321', address: 'TP.HCM' },
@@ -143,48 +149,135 @@ const initialExpenses: Expense[] = [
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      clients: initialClients,
-      orders: initialOrders,
-      deliveries: initialDeliveries,
-      inventory: initialInventory,
-      expenses: initialExpenses,
+      clients: [],
+      orders: [],
+      deliveries: [],
+      inventory: [],
+      expenses: [],
+      isSynced: false,
 
-      addClient: (c) => set((state) => ({ clients: [...state.clients, c] })),
-      updateClient: (id, c) => set((state) => ({
-        clients: state.clients.map(client => client.id === id ? { ...client, ...c } : client)
-      })),
-      deleteClient: (id) => set((state) => ({
-        clients: state.clients.filter(client => client.id !== id)
-      })),
+      // === CLIENTS ===
+      addClient: async (c) => {
+        set((state) => ({ clients: [...state.clients, c] }));
+        try { await setDoc(doc(db, 'clients', c.id), c); } catch (e) { console.error('Error adding client', e); }
+      },
+      updateClient: async (id, c) => {
+        set((state) => ({ clients: state.clients.map(client => client.id === id ? { ...client, ...c } : client) }));
+        try { await updateDoc(doc(db, 'clients', id), c); } catch (e) { console.error('Error updating client', e); }
+      },
+      deleteClient: async (id) => {
+        set((state) => ({ clients: state.clients.filter(client => client.id !== id) }));
+        try { await deleteDoc(doc(db, 'clients', id)); } catch (e) { console.error('Error deleting client', e); }
+      },
 
-      addOrder: (o) => set((state) => ({ orders: [o, ...state.orders] })),
-      updateOrder: (id, o) => set((state) => ({
-        orders: state.orders.map(order => order.id === id ? { ...order, ...o } : order)
-      })),
-      deleteOrder: (id) => set((state) => ({
-        orders: state.orders.filter(order => order.id !== id)
-      })),
+      // === ORDERS ===
+      addOrder: async (o) => {
+        set((state) => ({ orders: [o, ...state.orders] }));
+        try { await setDoc(doc(db, 'orders', o.id), o); } catch (e) { console.error('Error adding order', e); }
+      },
+      updateOrder: async (id, o) => {
+        set((state) => ({ orders: state.orders.map(order => order.id === id ? { ...order, ...o } : order) }));
+        try { await updateDoc(doc(db, 'orders', id), o); } catch (e) { console.error('Error updating order', e); }
+      },
+      deleteOrder: async (id) => {
+        set((state) => ({ orders: state.orders.filter(order => order.id !== id) }));
+        try { await deleteDoc(doc(db, 'orders', id)); } catch (e) { console.error('Error deleting order', e); }
+      },
 
-      addDelivery: (d) => set((state) => ({ deliveries: [d, ...state.deliveries] })),
-      updateDelivery: (id, d) => set((state) => ({
-        deliveries: state.deliveries.map(del => del.id === id ? { ...del, ...d } : del)
-      })),
+      // === DELIVERIES ===
+      addDelivery: async (d) => {
+        set((state) => ({ deliveries: [d, ...state.deliveries] }));
+        try { await setDoc(doc(db, 'deliveries', d.id), d); } catch (e) { console.error('Error adding delivery', e); }
+      },
+      updateDelivery: async (id, d) => {
+        set((state) => ({ deliveries: state.deliveries.map(del => del.id === id ? { ...del, ...d } : del) }));
+        try { await updateDoc(doc(db, 'deliveries', id), d); } catch (e) { console.error('Error updating delivery', e); }
+      },
 
-      addInventory: (i) => set((state) => ({ inventory: [i, ...state.inventory] })),
-      updateInventory: (id, i) => set((state) => ({
-        inventory: state.inventory.map(item => item.id === id ? { ...item, ...i } : item)
-      })),
-      deleteInventory: (id) => set((state) => ({
-        inventory: state.inventory.filter(item => item.id !== id)
-      })),
+      // === INVENTORY ===
+      addInventory: async (i) => {
+        set((state) => ({ inventory: [i, ...state.inventory] }));
+        try { await setDoc(doc(db, 'inventory', i.id), i); } catch (e) { console.error('Error adding inventory', e); }
+      },
+      updateInventory: async (id, i) => {
+        set((state) => ({ inventory: state.inventory.map(item => item.id === id ? { ...item, ...i } : item) }));
+        try { await updateDoc(doc(db, 'inventory', id), i); } catch (e) { console.error('Error updating inventory', e); }
+      },
+      deleteInventory: async (id) => {
+        set((state) => ({ inventory: state.inventory.filter(item => item.id !== id) }));
+        try { await deleteDoc(doc(db, 'inventory', id)); } catch (e) { console.error('Error deleting inventory', e); }
+      },
 
-      addExpense: (e) => set((state) => ({ expenses: [e, ...state.expenses] })),
-      updateExpense: (id, e) => set((state) => ({
-        expenses: state.expenses.map(exp => exp.id === id ? { ...exp, ...e } : exp)
-      })),
-      deleteExpense: (id) => set((state) => ({
-        expenses: state.expenses.filter(exp => exp.id !== id)
-      })),
+      // === EXPENSES ===
+      addExpense: async (e) => {
+        set((state) => ({ expenses: [e, ...state.expenses] }));
+        try { await setDoc(doc(db, 'expenses', e.id), e); } catch (e) { console.error('Error adding expense', e); }
+      },
+      updateExpense: async (id, e) => {
+        set((state) => ({ expenses: state.expenses.map(exp => exp.id === id ? { ...exp, ...e } : exp) }));
+        try { await updateDoc(doc(db, 'expenses', id), e); } catch (e) { console.error('Error updating expense', e); }
+      },
+      deleteExpense: async (id) => {
+        set((state) => ({ expenses: state.expenses.filter(exp => exp.id !== id) }));
+        try { await deleteDoc(doc(db, 'expenses', id)); } catch (e) { console.error('Error deleting expense', e); }
+      },
+
+      // === SYNC & SEED ===
+      syncFirestore: () => {
+        const unsubClients = onSnapshot(collection(db, 'clients'), (snapshot) => {
+          const clients = snapshot.docs.map(doc => doc.data() as Client);
+          set({ clients });
+        });
+
+        const unsubOrders = onSnapshot(collection(db, 'orders'), (snapshot) => {
+          const orders = snapshot.docs.map(doc => doc.data() as Order);
+          set({ orders });
+        });
+
+        const unsubDeliveries = onSnapshot(collection(db, 'deliveries'), (snapshot) => {
+          const deliveries = snapshot.docs.map(doc => doc.data() as Delivery);
+          set({ deliveries });
+        });
+
+        const unsubInventory = onSnapshot(collection(db, 'inventory'), (snapshot) => {
+          const inventory = snapshot.docs.map(doc => doc.data() as InventoryItem);
+          set({ inventory });
+        });
+
+        const unsubExpenses = onSnapshot(collection(db, 'expenses'), (snapshot) => {
+          const expenses = snapshot.docs.map(doc => doc.data() as Expense);
+          set({ expenses });
+        });
+
+        set({ isSynced: true });
+
+        // return unsubscribe function
+        return () => {
+          unsubClients();
+          unsubOrders();
+          unsubDeliveries();
+          unsubInventory();
+          unsubExpenses();
+        };
+      },
+
+      seedMockData: async () => {
+        // Only run if empty
+        const snapshot = await getDocs(collection(db, 'clients'));
+        if (!snapshot.empty) return;
+
+        console.log("Seeding Mock Data to Firestore...");
+        try {
+          for (const c of initialClients) await setDoc(doc(db, 'clients', c.id), c);
+          for (const o of initialOrders) await setDoc(doc(db, 'orders', o.id), o);
+          for (const d of initialDeliveries) await setDoc(doc(db, 'deliveries', d.id), d);
+          for (const i of initialInventory) await setDoc(doc(db, 'inventory', i.id), i);
+          for (const e of initialExpenses) await setDoc(doc(db, 'expenses', e.id), e);
+          console.log("Mock data seeded successfully.");
+        } catch (err) {
+          console.error("Error seeding mock data", err);
+        }
+      }
 
     }),
     {

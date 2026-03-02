@@ -1,18 +1,18 @@
 :root {
-  --primary-color: #EC4899; /* Tailwind pink-500 */
-  --primary-hover: #DB2777; /* Tailwind pink-600 */
-  --secondary-color: #3B82F6; /* Tailwind blue-500 used for secondary buttons in image */
-  --bg-color: #FDF2F8; /* Tailwind pink-50 */
-  --surface-color: #ffffff;
-  --text-primary: #1F2937; /* Gray-800 */
-  --text-secondary: #6B7280; /* Gray-500 */
-  --border-color: #F8B4D9; /* Very soft pink/gray border #FCE7F3 or e5e7eb. Used pink-200 for soft pink borders */
-  --danger-color: #ef4444;
-  --success-color: #10B981;
-  --warning-color: #f59e0b;
-  --info-color: #3b82f6;
-  --table-header-bg: #FCE7F3; /* Pink-100 */
-  --table-header-text: #9D174D; /* Pink-900 */
+  --primary-color: #A0794E;       /* Warm gold */
+  --primary-hover: #7E5E3A;       /* Dark gold hover */
+  --secondary-color: #7AADA0;     /* Sage teal */
+  --bg-color: #C0D3CC;            /* Sage green fallback */
+  --surface-color: rgba(248, 246, 240, 0.72); /* Warm translucent white */
+  --text-primary: #2D271F;        /* Warm dark brown */
+  --text-secondary: #6A7D74;      /* Muted sage */
+  --border-color: #BDD0C8;        /* Sage border */
+  --danger-color: #B85040;
+  --success-color: #4A8E6A;
+  --warning-color: #B08A3A;
+  --info-color: #4A7E9A;
+  --table-header-bg: #C0D3CC;
+  --table-header-text: #2A4A3A;
 
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -39,10 +39,14 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: var(--bg-color);
+  /* Layered gradient: warm glow center-bottom, cool sage-teal top-left — matches logo */
+  background:
+    radial-gradient(ellipse at 65% 85%, rgba(230, 215, 190, 0.7) 0%, transparent 55%),
+    linear-gradient(130deg, #9ABFB8 0%, #C2D4CC 45%, #D8CDBC 100%);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 14px; /* Scaled down slightly for internal dashboard */
+  font-size: 14px;
   transition:
     background-color var(--transition-normal),
     color var(--transition-normal);
@@ -125,11 +129,11 @@ textarea {
   background: var(--bg-color);
 }
 ::-webkit-scrollbar-thumb {
-  background: #fbcfe8;
+  background: #C8D8D0;
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #f472b6;
+  background: #B8956A;
 }
 
 /* Global Modal Styles */
@@ -239,11 +243,11 @@ textarea {
   flex: 1;
   margin-left: 280px;
   padding: 0;
-  background: var(--bg-color);
+  background: transparent;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Critical for wrapping nested flex items correctly */
+  min-width: 0;
   max-width: 100vw;
 }
 

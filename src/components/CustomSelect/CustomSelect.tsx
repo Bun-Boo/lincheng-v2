@@ -17,6 +17,7 @@ export default function CustomSelect({ value, options, onChange, className = '',
     const containerRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState({ top: 0, left: 0, width: 0 });
+    const [searchTerm, setSearchTerm] = useState('');
 
     const selectedOption = options.find(o => o.value === value);
 
@@ -35,6 +36,7 @@ export default function CustomSelect({ value, options, onChange, className = '',
         if (isOpen) {
             updatePosition();
             window.addEventListener('resize', updatePosition);
+            setSearchTerm('');
         }
         return () => {
             window.removeEventListener('resize', updatePosition);
@@ -71,6 +73,10 @@ export default function CustomSelect({ value, options, onChange, className = '',
         };
     }, [isOpen]);
 
+    const filteredOptions = options.filter(opt =>
+        opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const dropdownContent = isOpen ? (
         <div
             ref={dropdownRef}
@@ -81,19 +87,36 @@ export default function CustomSelect({ value, options, onChange, className = '',
                 width: `${dropdownStyle.width}px`
             }}
         >
-            {options.map((opt) => (
-                <div
-                    key={opt.value}
-                    className={`${styles.optionItem} ${value === opt.value ? styles.selected : ''} ${opt.className || ''}`}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onChange(opt.value);
-                        setIsOpen(false);
-                    }}
-                >
-                    {opt.label}
-                </div>
-            ))}
+            <div className={styles.searchContainer}>
+                <input
+                    type="text"
+                    className={styles.searchInput}
+                    placeholder="Tìm kiếm..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    autoFocus
+                />
+            </div>
+            <div className={styles.optionsList}>
+                {filteredOptions.length > 0 ? (
+                    filteredOptions.map((opt) => (
+                        <div
+                            key={opt.value}
+                            className={`${styles.optionItem} ${value === opt.value ? styles.selected : ''} ${opt.className || ''}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onChange(opt.value);
+                                setIsOpen(false);
+                            }}
+                        >
+                            {opt.label}
+                        </div>
+                    ))
+                ) : (
+                    <div className={styles.noResults}>Không tìm thấy kết quả</div>
+                )}
+            </div>
         </div>
     ) : null;
 
