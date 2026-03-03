@@ -6,6 +6,7 @@ import formStyles from '../form.module.css';
 import { useStore, Expense, ExpenseCategory } from '@/store/useStore';
 import CustomSelect from '@/components/CustomSelect/CustomSelect';
 import ImageUploader from '@/components/ImageUploader/ImageUploader';
+import { compressImage } from '@/lib/imageUtils';
 
 export default function Expenses() {
     const { expenses, addExpense, updateExpense, deleteExpense } = useStore();
@@ -211,7 +212,27 @@ export default function Expenses() {
                                                     }}
                                                     value={formData.image || ''}
                                                     onChange={e => setFormData({ ...formData, image: e.target.value })}
-                                                    placeholder="Dán link hóa đơn..."
+                                                    onPaste={async (e) => {
+                                                        const items = e.clipboardData?.items;
+                                                        if (!items) return;
+                                                        for (let i = 0; i < items.length; i++) {
+                                                            if (items[i].type.indexOf('image') !== -1) {
+                                                                const file = items[i].getAsFile();
+                                                                if (file) {
+                                                                    e.preventDefault();
+                                                                    try {
+                                                                        const base64 = await compressImage(file);
+                                                                        setFormData({ ...formData, image: base64 });
+                                                                    } catch (err) {
+                                                                        console.error('Lỗi khi nén ảnh từ clipboard:', err);
+                                                                        alert('Không thể dán ảnh này. Vui lòng thử lại.');
+                                                                    }
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    }}
+                                                    placeholder="Dán link, hoặc dán ảnh (Ctrl+V)..."
                                                 />
                                                 <ImageUploader onImageSelected={(base64) => setFormData({ ...formData, image: base64 })} />
                                             </div>

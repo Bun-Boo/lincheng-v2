@@ -6,11 +6,13 @@ import formStyles from '../form.module.css';
 import { useStore, Order, OrderStatus } from '@/store/useStore';
 import CustomSelect from '@/components/CustomSelect/CustomSelect';
 import ImageUploader from '@/components/ImageUploader/ImageUploader';
+import { compressImage } from '@/lib/imageUtils';
 
 export default function OrdersNDT() {
     const { orders, clients, addOrder, updateOrder, deleteOrder } = useStore();
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isCreating, setIsCreating] = useState(false);
+    const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
     // Filter State
     const [fromDate, setFromDate] = useState('');
@@ -45,7 +47,7 @@ export default function OrdersNDT() {
         if (!clientId) return alert('Vui lòng chọn khách hàng');
 
         const newOrder: Order = {
-            id: `NDT${Date.now().toString().slice(-4)} `,
+            id: `NDT${Date.now().toString().slice(-4)}`,
             clientId,
             itemName,
             image,
@@ -72,7 +74,62 @@ export default function OrdersNDT() {
         setPaid('');
     };
 
+    const handleUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (editingOrder) {
+            updateOrder(editingOrder.id, {
+                clientId,
+                itemName,
+                image,
+                quantity: Number(quantity) || 1,
+                price: Number(price) || 0,
+                cost: Number(cost) || 0,
+                feeNDT: Number(feeNDT) || 0,
+                paid: Number(paid) || 0,
+            });
+            setEditingOrder(null);
+            setIsCreating(false);
+
+            // Reset form
+            setClientId('');
+            setItemName('');
+            setImage('');
+            setQuantity('1');
+            setPrice('');
+            setCost('');
+            setFeeNDT('');
+            setPaid('');
+        }
+    };
+
+    const openCreate = () => {
+        setEditingOrder(null);
+        setIsCreating(true);
+        setClientId('');
+        setItemName('');
+        setImage('');
+        setQuantity('1');
+        setPrice('');
+        setCost('');
+        setFeeNDT('');
+        setPaid('');
+    };
+
+    const openEdit = (order: Order) => {
+        setEditingOrder(order);
+        setIsCreating(true);
+        setClientId(order.clientId);
+        setItemName(order.itemName);
+        setImage(order.image || '');
+        setQuantity(order.quantity.toString());
+        setPrice(order.price.toString());
+        setCost(order.cost.toString());
+        setFeeNDT(order.feeNDT.toString());
+        setPaid(order.paid.toString());
+    };
+
     const handleCloseCreate = () => {
+        setEditingOrder(null);
         setIsCreating(false);
         setClientId('');
         setItemName('');
@@ -110,7 +167,7 @@ export default function OrdersNDT() {
                                 onChange={e => setToDate(e.target.value)}
                             />
                         </div>
-                        <button className={styles.addButton} onClick={() => setIsCreating(true)}>+ Tạo Đơn Mới</button>
+                        <button className={styles.addButton} onClick={openCreate}>+ Tạo Đơn Mới</button>
                     </div>
                 </div>
 
@@ -191,18 +248,30 @@ export default function OrdersNDT() {
                                             />
                                         </td>
                                         <td>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
-                                                        deleteOrder(order.id);
-                                                    }
-                                                }}
-                                                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: 'var(--danger-color, #ef4444)' }}
-                                                title="Xóa đơn hàng"
-                                            >
-                                                🗑️
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openEdit(order);
+                                                    }}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}
+                                                    title="Sửa"
+                                                >
+                                                    ✏️
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
+                                                            deleteOrder(order.id);
+                                                        }
+                                                    }}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: 'var(--danger-color, #ef4444)' }}
+                                                    title="Xóa đơn hàng"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 );
@@ -270,11 +339,11 @@ export default function OrdersNDT() {
                     <div className="modal-overlay">
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
-                                <h2>Tạo Đơn NĐT Mới</h2>
+                                <h2>{editingOrder ? 'Sửa Đơn NĐT' : 'Tạo Đơn NĐT Mới'}</h2>
                                 <button type="button" className="modal-close-btn" onClick={handleCloseCreate}>×</button>
                             </div>
                             <div className="modal-body">
-                                <form onSubmit={handleCreate}>
+                                <form onSubmit={editingOrder ? handleUpdate : handleCreate}>
                                     <div className={formStyles.formGroup}>
                                         <label>Khách Hàng</label>
                                         <CustomSelect
@@ -330,7 +399,27 @@ export default function OrdersNDT() {
                                                         }}
                                                         value={image}
                                                         onChange={e => setImage(e.target.value)}
-                                                        placeholder="Dán link ảnh, nhập emoji..."
+                                                        onPaste={async (e) => {
+                                                            const items = e.clipboardData?.items;
+                                                            if (!items) return;
+                                                            for (let i = 0; i < items.length; i++) {
+                                                                if (items[i].type.indexOf('image') !== -1) {
+                                                                    const file = items[i].getAsFile();
+                                                                    if (file) {
+                                                                        e.preventDefault();
+                                                                        try {
+                                                                            const base64 = await compressImage(file);
+                                                                            setImage(base64);
+                                                                        } catch (err) {
+                                                                            console.error('Lỗi khi nén ảnh từ clipboard:', err);
+                                                                            alert('Không thể dán ảnh này. Vui lòng thử lại.');
+                                                                        }
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }}
+                                                        placeholder="Dán link ảnh, nhập emoji, hoặc dán ảnh (Ctrl+V)..."
                                                     />
                                                     <ImageUploader onImageSelected={(base64) => setImage(base64)} />
                                                 </div>
@@ -374,7 +463,7 @@ export default function OrdersNDT() {
 
                                     <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                                         <button type="button" onClick={handleCloseCreate} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', color: 'var(--text-primary)' }}>Hủy</button>
-                                        <button type="submit" className={formStyles.submitBtn} style={{ marginTop: 0, flex: 2 }}>Tạo Đơn Hàng</button>
+                                        <button type="submit" className={formStyles.submitBtn} style={{ marginTop: 0, flex: 2 }}>{editingOrder ? 'Cập Nhật' : 'Tạo Đơn Hàng'}</button>
                                     </div>
                                 </form>
                             </div>
