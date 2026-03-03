@@ -74,6 +74,7 @@ interface AppState {
 
   addDelivery: (d: Delivery) => void;
   updateDelivery: (id: string, d: Partial<Delivery>) => void;
+  deleteDelivery: (id: string) => void;
 
   addInventory: (i: InventoryItem) => void;
   updateInventory: (id: string, i: Partial<InventoryItem>) => void;
@@ -226,6 +227,10 @@ export const useStore = create<AppState>()(
       updateDelivery: async (id, d) => {
         set((state) => ({ deliveries: state.deliveries.map(del => del.id === id ? { ...del, ...d } : del) }));
         try { await updateDoc(doc(db, 'deliveries', id), d); } catch (e) { console.error('Error updating delivery', e); }
+      },
+      deleteDelivery: async (id) => {
+        set((state) => ({ deliveries: state.deliveries.filter(del => del.id !== id) }));
+        try { await deleteDoc(doc(db, 'deliveries', id)); } catch (e) { console.error('Error deleting delivery', e); }
       },
 
       // === INVENTORY ===

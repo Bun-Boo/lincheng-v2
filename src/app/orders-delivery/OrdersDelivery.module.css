@@ -161,6 +161,41 @@
   font-style: italic;
 }
 
+.actionCell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.editBtn {
+  color: var(--primary-color);
+}
+.editBtn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  transform: scale(1.1);
+}
+
+.deleteBtn {
+  color: var(--danger-color);
+}
+.deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  transform: scale(1.1);
+}
+
 .infoGroup {
   margin-bottom: 12px;
   display: flex;

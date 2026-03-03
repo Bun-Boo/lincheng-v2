@@ -8,9 +8,10 @@ import CustomSelect from '@/components/CustomSelect/CustomSelect';
 import { calculateClientDebt } from '@/lib/utils';
 
 export default function OrdersDelivery() {
-    const { deliveries, orders, clients, addDelivery, updateDelivery } = useStore();
+    const { deliveries, orders, clients, addDelivery, updateDelivery, deleteDelivery } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [editingDelivery, setEditingDelivery] = useState<Delivery | null>(null);
     const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
     // Form State
@@ -71,6 +72,39 @@ export default function OrdersDelivery() {
         setOrderNdtId('');
     };
 
+    const handleEditClick = (delivery: Delivery) => {
+        setEditingDelivery(delivery);
+        setDeliveryId(delivery.id);
+        setOrderNdtId(delivery.orderNdtId);
+    };
+
+    const handleUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingDelivery || !deliveryId || !orderNdtId) return alert('Vui lòng điền đủ thông tin');
+
+        // Check if new ID exists and is not the current one
+        if (deliveryId !== editingDelivery.id && deliveries.some(d => d.id === deliveryId)) {
+            return alert('Mã Vận Đơn (MVĐ) đã tồn tại!');
+        }
+
+        // We update the existing record
+        updateDelivery(editingDelivery.id, {
+            id: deliveryId, // allow changing ID if needed
+            orderNdtId: orderNdtId,
+        });
+
+        // Close and reset
+        setEditingDelivery(null);
+        setDeliveryId('');
+        setOrderNdtId('');
+    };
+
+    const handleDeleteClick = (deliveryId: string) => {
+        if (window.confirm(`Bạn có chắc chắn muốn xóa MVĐ ${deliveryId} không?`)) {
+            deleteDelivery(deliveryId);
+        }
+    };
+
     return (
         <>
             <div className="page-container">
@@ -105,6 +139,7 @@ export default function OrdersDelivery() {
                                 <th>Giá</th>
                                 <th>COD</th>
                                 <th>Trạng thái</th>
+                                <th>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -142,6 +177,24 @@ export default function OrdersDelivery() {
                                                     { value: "Giao thất bại", label: "Giao thất bại", className: styles.statusFailed },
                                                 ]}
                                             />
+                                        </td>
+                                        <td>
+                                            <div className={styles.actionCell}>
+                                                <button
+                                                    className={`${styles.actionBtn} ${styles.editBtn}`}
+                                                    onClick={(e) => { e.stopPropagation(); handleEditClick(delivery as Delivery); }}
+                                                    title="Sửa MVĐ"
+                                                >
+                                                    ✏️
+                                                </button>
+                                                <button
+                                                    className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteClick(delivery.id); }}
+                                                    title="Xóa MVĐ"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 );
@@ -209,7 +262,7 @@ export default function OrdersDelivery() {
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Thêm Mã Vận Đơn Mới</h2>
-                            <button className="modal-close-btn" onClick={() => setIsCreating(false)}>×</button>
+                            <button className="modal-close-btn" onClick={() => { setIsCreating(false); setDeliveryId(''); setOrderNdtId(''); }}>×</button>
                         </div>
                         <div className="modal-body">
                             <form onSubmit={handleCreate}>
@@ -252,6 +305,59 @@ export default function OrdersDelivery() {
                                 </div>
 
                                 <button type="submit" className={formStyles.submitBtn}>Tạo Vận Đơn</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Delivery Modal */}
+            {editingDelivery && (
+                <div className="modal-overlay">
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Sửa Vận Đơn</h2>
+                            <button className="modal-close-btn" onClick={() => { setEditingDelivery(null); setDeliveryId(''); setOrderNdtId(''); }}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <form onSubmit={handleUpdate}>
+
+                                <div className={formStyles.formGroup}>
+                                    <label>Mã Vận Đơn (MVĐ)</label>
+                                    <input
+                                        type="text"
+                                        className={formStyles.formInput}
+                                        value={deliveryId}
+                                        onChange={e => setDeliveryId(e.target.value)}
+                                        placeholder="VD: SPX123456789"
+                                        required
+                                    />
+                                </div>
+
+                                <div className={formStyles.formGroup}>
+                                    <label>Liên kết Đơn NĐT</label>
+                                    <CustomSelect
+                                        className={formStyles.formInput}
+                                        value={orderNdtId}
+                                        onChange={val => setOrderNdtId(val)}
+                                        placeholder="-- Chọn đơn Mua Hộ --"
+                                        // Include available orders PLUS the currently linked order
+                                        options={[
+                                            { value: "", label: "-- Chọn đơn Mua Hộ --", className: "hidden" },
+                                            ...orders
+                                                .filter(o => o.id === editingDelivery.orderNdtId || !deliveries.some(d => d.orderNdtId === o.id))
+                                                .map(o => {
+                                                    const c = getClientInfo(o.clientId);
+                                                    return {
+                                                        value: o.id,
+                                                        label: `${o.id} - ${c?.name} - ${o.itemName}`
+                                                    };
+                                                })
+                                        ]}
+                                    />
+                                </div>
+
+                                <button type="submit" className={formStyles.submitBtn}>Lưu Thay Đổi</button>
                             </form>
                         </div>
                     </div>

@@ -29,6 +29,7 @@ export default function Sidebar() {
 
     useEffect(() => {
         const saved = localStorage.getItem(LOGO_KEY);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (saved) setLogoSrc(saved);
     }, []);
 

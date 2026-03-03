@@ -36,6 +36,7 @@ export default function CustomSelect({ value, options, onChange, className = '',
         if (isOpen) {
             updatePosition();
             window.addEventListener('resize', updatePosition);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSearchTerm('');
         }
         return () => {

@@ -72,7 +72,7 @@ export default function Statistics() {
                     <select
                         className={styles.timeSelect}
                         value={timeRange}
-                        onChange={(e) => setTimeRange(e.target.value as any)}
+                        onChange={(e) => setTimeRange(e.target.value as 'all' | 'today' | 'week' | 'month' | 'year' | 'custom')}
                     >
                         <option value="all">Tất cả thời gian</option>
                         <option value="today">Hôm nay</option>
