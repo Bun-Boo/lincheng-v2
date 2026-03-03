@@ -5,6 +5,9 @@ import { usePathname } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import styles from './Sidebar.module.css';
 
+import { useRouter } from 'next/navigation';
+import { useStore } from '@/store/useStore';
+
 const navItems = [
     { name: 'Đơn NĐT', path: '/orders-ndt', icon: '📦' },
     { name: 'Giao Hàng', path: '/orders-delivery', icon: '🚚' },
@@ -19,6 +22,8 @@ const LOGO_KEY = 'lincheng-logo';
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+    const { logout } = useStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
@@ -45,6 +50,11 @@ export default function Sidebar() {
         e.target.value = '';
     };
 
+    const handleLogout = () => {
+        logout();
+        router.push('/login');
+    };
+
     return (
         <aside className={styles.sidebar}>
             <div className={styles.logoContainer}>
@@ -54,6 +64,7 @@ export default function Sidebar() {
                     title="Nhấn để đổi logo"
                 >
                     {logoSrc ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img src={logoSrc} alt="Logo" className={styles.logoImage} />
                     ) : (
                         <div className={styles.logoIcon}>L</div>
@@ -98,6 +109,9 @@ export default function Sidebar() {
                         <p className={styles.userRole}>Quản lý Kho</p>
                     </div>
                 </div>
+                <button className={styles.logoutButton} onClick={handleLogout} title="Đăng xuất">
+                    Đăng xuất
+                </button>
             </div>
         </aside>
     );

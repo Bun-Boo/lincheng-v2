@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs, initializeFirestore } from 'firebase/firestore';
+import { collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 export type OrderStatus = 'Chờ' | 'Đã đặt' | 'Nhận hàng';
@@ -83,6 +83,11 @@ interface AppState {
   updateExpense: (id: string, e: Partial<Expense>) => void;
   deleteExpense: (id: string) => void;
 
+  // === AUTHENTICATION ===
+  isAuthenticated: boolean;
+  login: (password: string) => Promise<boolean>;
+  logout: () => void;
+
   syncFirestore: () => () => void; // Returns an unsubscribe function
   seedMockData: () => Promise<void>; // Feature to initialize the database with some mock data
 }
@@ -155,6 +160,35 @@ export const useStore = create<AppState>()(
       inventory: [],
       expenses: [],
       isSynced: false,
+      isAuthenticated: false,
+
+      // === AUTHENTICATION ===
+      login: async (password: string) => {
+        try {
+          // Fetch from Firestore: settings/auth
+          const settingDoc = await getDocs(collection(db, 'settings'));
+          let truePin = ''; // Default fallback PIN
+
+          settingDoc.forEach((docSnap) => {
+            if (docSnap.id === 'auth') {
+              const data = docSnap.data();
+              if (data && data.pin) {
+                truePin = data.pin;
+              }
+            }
+          });
+
+          if (password === truePin) {
+            set({ isAuthenticated: true });
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error('Error verifying login', error);
+          return false;
+        }
+      },
+      logout: () => set({ isAuthenticated: false }),
 
       // === CLIENTS ===
       addClient: async (c) => {
