@@ -139,7 +139,7 @@ export default function Debts() {
             {/* Info Modal */}
             {
                 selectedClientId && (
-                    <div className="modal-overlay" onClick={() => setSelectedClientId(null)}>
+                    <div className="modal-overlay">
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2>Chi tiết khách hàng</h2>
@@ -183,7 +183,7 @@ export default function Debts() {
 
             {/* Create Client Modal */}
             {isCreating && (
-                <div className="modal-overlay" onClick={() => setIsCreating(false)}>
+                <div className="modal-overlay">
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Thêm Khách Hàng Mới</h2>

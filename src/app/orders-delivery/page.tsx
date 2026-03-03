@@ -162,7 +162,7 @@ export default function OrdersDelivery() {
             {/* Info Modal */}
             {
                 selectedClientId && (
-                    <div className="modal-overlay" onClick={() => setSelectedClientId(null)}>
+                    <div className="modal-overlay">
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2>Chi tiết khách hàng</h2>
@@ -205,7 +205,7 @@ export default function OrdersDelivery() {
 
             {/* Create Delivery Modal */}
             {isCreating && (
-                <div className="modal-overlay" onClick={() => setIsCreating(false)}>
+                <div className="modal-overlay">
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Thêm Mã Vận Đơn Mới</h2>

@@ -162,7 +162,7 @@ export default function Customers() {
             {/* Info Modal */}
             {
                 selectedClientId && (
-                    <div className="modal-overlay" onClick={() => setSelectedClientId(null)}>
+                    <div className="modal-overlay">
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2>Chi tiết khách hàng</h2>
@@ -204,7 +204,7 @@ export default function Customers() {
             }
 
             {isCreating && (
-                <div className="modal-overlay" onClick={() => setIsCreating(false)}>
+                <div className="modal-overlay">
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>{editingClient ? 'Sửa Thông Tin Khách Hàng' : 'Thêm Khách Hàng Mới'}</h2>

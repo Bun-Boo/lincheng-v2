@@ -222,7 +222,7 @@ export default function OrdersNDT() {
             {/* Info Modal */}
             {
                 selectedOrder && (
-                    <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
+                    <div className="modal-overlay">
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2>Chi tiết khách hàng</h2>
@@ -267,7 +267,7 @@ export default function OrdersNDT() {
             {/* Create Order Modal */}
             {
                 isCreating && (
-                    <div className="modal-overlay" onClick={handleCloseCreate}>
+                    <div className="modal-overlay">
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2>Tạo Đơn NĐT Mới</h2>

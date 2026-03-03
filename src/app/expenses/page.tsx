@@ -146,7 +146,7 @@ export default function Expenses() {
 
             {/* Add / Edit Form Modal */}
             {(isCreating || editingItem) && (
-                <div className="modal-overlay" onClick={() => { setIsCreating(false); setEditingItem(null); }}>
+                <div className="modal-overlay">
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>{editingItem ? 'Sửa Chi Phí' : 'Thêm Chi Phí Mới'}</h2>
