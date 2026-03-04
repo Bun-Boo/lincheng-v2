@@ -28,9 +28,10 @@ export default function Debts() {
     });
 
     const filteredDebts = mappedDebts.filter(d =>
-        d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.phone.includes(searchTerm) ||
-        d.id.toLowerCase().includes(searchTerm.toLowerCase())
+        (d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            d.phone.includes(searchTerm) ||
+            d.id.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        d.totalDebt > 0
     );
 
     const totalOutstandingDebt = filteredDebts.reduce((sum, client) => sum + client.totalDebt, 0);
@@ -89,50 +90,52 @@ export default function Debts() {
                 </div>
 
                 <div className={`${styles.tableContainer} table-responsive`}>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Mã KH</th>
-                                <th>Tên KH</th>
-                                <th>SĐT</th>
-                                <th>Địa chỉ</th>
-                                <th>Tổng đơn mua</th>
-                                <th>Công nợ</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredDebts.map((client) => {
-                                return (
-                                    <tr key={client.id} className={styles.tableRow}>
-                                        <td className={styles.emphasizeId}>{client.id}</td>
-                                        <td
-                                            className={styles.emphasizeName}
-                                            onClick={() => setSelectedClientId(client.id)}
-                                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                                        >{client.name}</td>
-                                        <td>{client.phone}</td>
-                                        <td className={styles.addressCell}>{client.address}</td>
-                                        <td className={styles.orderCountCell}>{client.totalOrders}</td>
-                                        <td className={client.totalDebt > 0 ? styles.debtActive : styles.debtZero}>
-                                            {client.totalDebt.toLocaleString()}đ
-                                        </td>
-                                        <td>
-                                            <button className={styles.viewDetailBtn} onClick={() => setSelectedClientId(client.id)}>Chi tiết</button>
+                    <div className={styles.tableScrollWrapper}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Mã KH</th>
+                                    <th>Tên KH</th>
+                                    <th>SĐT</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Tổng đơn mua</th>
+                                    <th>Công nợ</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredDebts.map((client) => {
+                                    return (
+                                        <tr key={client.id} className={styles.tableRow}>
+                                            <td className={styles.emphasizeId}>{client.id}</td>
+                                            <td
+                                                className={styles.emphasizeName}
+                                                onClick={() => setSelectedClientId(client.id)}
+                                                style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                                            >{client.name}</td>
+                                            <td>{client.phone}</td>
+                                            <td className={styles.addressCell}>{client.address}</td>
+                                            <td className={styles.orderCountCell}>{client.totalOrders}</td>
+                                            <td className={client.totalDebt > 0 ? styles.debtActive : styles.debtZero}>
+                                                {client.totalDebt.toLocaleString()}đ
+                                            </td>
+                                            <td>
+                                                <button className={styles.viewDetailBtn} onClick={() => setSelectedClientId(client.id)}>Chi tiết</button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+
+                                {filteredDebts.length === 0 && (
+                                    <tr>
+                                        <td colSpan={7} className={styles.emptyState}>
+                                            Không tìm thấy khách hàng nào có công nợ.
                                         </td>
                                     </tr>
-                                );
-                            })}
-
-                            {filteredDebts.length === 0 && (
-                                <tr>
-                                    <td colSpan={7} className={styles.emptyState}>
-                                        Không tìm thấy khách hàng nào.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

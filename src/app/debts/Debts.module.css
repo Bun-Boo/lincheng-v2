@@ -64,14 +64,28 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
+  overflow: hidden;
+  max-height: calc(100vh - 220px);
+  display: flex;
+  flex-direction: column;
+}
+
+.tableScrollWrapper {
+  overflow-y: auto;
   overflow-x: auto;
-  overflow-y: visible;
+  flex: 1;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .table th,
