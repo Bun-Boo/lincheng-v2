@@ -166,8 +166,7 @@ export default function Debts() {
                                                 <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Công nợ hiện tại:</label>
                                                 <p style={{ fontWeight: 'bold', color: 'var(--danger-color)' }}>
                                                     {(() => {
-                                                        const clientOrders = orders.filter(o => o.clientId === client?.id);
-                                                        const totalDebt = clientOrders.reduce((sum, o) => sum + (o.price * o.quantity) - o.paid, 0);
+                                                        const totalDebt = calculateClientDebt(client?.id || '');
                                                         return totalDebt > 0 ? totalDebt.toLocaleString() + 'đ' : '0đ';
                                                     })()}
                                                 </p>

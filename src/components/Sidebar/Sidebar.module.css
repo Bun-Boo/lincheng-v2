@@ -107,6 +107,9 @@
   gap: 16px;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .navLink:hover {

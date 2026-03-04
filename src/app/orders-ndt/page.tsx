@@ -7,6 +7,7 @@ import { useStore, Order, OrderStatus } from '@/store/useStore';
 import CustomSelect from '@/components/CustomSelect/CustomSelect';
 import ImageUploader from '@/components/ImageUploader/ImageUploader';
 import { compressImage } from '@/lib/imageUtils';
+import { calculateClientDebt } from '@/lib/utils';
 
 export default function OrdersNDT() {
     const { orders, clients, addOrder, updateOrder, deleteOrder } = useStore();
@@ -318,8 +319,7 @@ export default function OrdersNDT() {
                                                 <label>Công nợ hiện tại:</label>
                                                 <p className={styles.profitNeg} style={{ fontWeight: 'bold' }}>
                                                     {(() => {
-                                                        const clientOrders = orders.filter(o => o.clientId === client?.id);
-                                                        const totalDebt = clientOrders.reduce((sum, o) => sum + (o.price * o.quantity) - o.paid, 0);
+                                                        const totalDebt = calculateClientDebt(client?.id || '');
                                                         return totalDebt > 0 ? totalDebt.toLocaleString() + 'đ' : '0đ';
                                                     })()}
                                                 </p>
